@@ -1,0 +1,38 @@
+Hi everyone, today I’ll walk you through the recent changes we’ve made around payee transfer limits. This update involves small  modifications to our existing APIs and the introduction of a new API to only handle setting or updating the transfer limits.
+
+
+I will quickly go through the changes1. Add Payee
+"We’ve added a new optional request field here. If the user wants to set a transfer limit while adding a payee, they can select that from slider and provide the limit value. We pass this value to the CS . Other parts of the request remain unchanged."
+
+In the response, we now also include the transferLimit value — this is shown on the success screen so the user immediately sees the limit that has been set."
+
+2. Get Payees
+"In the response, we now include a transferLimit field — but only for payees whose limit is set. For those payees whose limit is yet to be set, we wont be returning this field. This way, the frontend can check this field and decide whether to show a 'Set Limit' option or an 'Update Limit' option wherever its required.”
+
+3. Update Payee
+"We’ve added two new fields in the request: previousTransferLimit and newTransferLimit. The previous limit is needed for our reports"
+
+
+4. the new api beneficiary-v1/tpt-limit/manage
+
+	This is our new dedicated API for setting or updating a payee’s transfer limit.
+
+Request:
+* beneficiaryId
+* accountType
+* previousTransferLimit
+* newTransferLimit
+
+We require previousTransferLimit for MFA validation. MFA is going to be triggered only if the user is increasing the transfer limit — so we can compare the new limit with the old one right on the backend.
+
+Response:
+Current transferLimit value
+5. config/moneytransfer API
+We’ve added a feature flag in the response of config/moneytransfer. This flag determines whether the transfer limit per payee feature should be shown in the profile section. This allows us to enable or disable the feature at runtime
+
+
+for fund transfer validation
+During a fund transfer, we now compare the transfer amount against the payee’s available transfer limit. If the amount exceeds the available limit, we immediately return an error.
+On the frontend side, this check can be done preemptively. The payment screen we will call the limitsinfo/beneficiary API to fetch the payee’s available transfer limit before the transaction is initiated. This way, user can be warned instantly by showing the error message.
+
+I think that covers all the changes for payee transfer limit, any questions or clarifications on anything?

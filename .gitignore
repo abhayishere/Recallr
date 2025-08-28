@@ -1,0 +1,13 @@
+# Ignore environment files and secrets
+.env
+
+# macOS
+.DS_Store
+
+# Build artifacts (optional)
+bin/
+dist/
+
+# Go
+*.test
+coverage.out
